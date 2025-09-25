@@ -52,7 +52,7 @@ public class BlockChain
         return BlockMining.Create(this, body);
     }
 
-    public Result<Void> AddBlock(Block block)
+    public Result<Block> AddBlock(Block block)
     {
         _semaphoreSlim.Wait();
         try
@@ -70,10 +70,10 @@ public class BlockChain
 
             return ProveOfWork.Create(block.Body, block.Header.Nonce)
                 .Bind(x => x.Value.IsValid(this))
-                .Tap(_ =>
+                .Bind<Void, Block>(_ =>
                 {
                     _blocks.Add(block);
-                    return Void.Value;
+                    return block;
                 });
         }
         finally

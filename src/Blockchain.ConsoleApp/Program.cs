@@ -3,29 +3,28 @@
 using System.Diagnostics;
 using System.Text.Json;
 
+using TheNoobs.Results.Extensions;
+
+using Void = TheNoobs.Results.Types.Void;
+
 var blockChain = BlockChain.Create(4)
     .Value;
 
 var stopwatch = new Stopwatch();
 stopwatch.Start();
-for (var i = 1; i <= 100; i++)
+for (var i = 1; i <= 200; i++)
 {
     var body = blockChain.CreateBody(new BlockData())
-        .Value;
-
-    var mining = blockChain.CreateBlockMining(body)
-        .Value;
-
-    var block = mining.Mine()
-        .Value;
-
-    blockChain.AddBlock(block);
+        .Bind(x => blockChain.CreateBlockMining(x.Value))
+        .Bind(x => x.Value.Mine())
+        .Bind(x => blockChain.AddBlock(x.Value))
+        .Tap(x =>
+        {
+            Console.WriteLine(JsonSerializer.Serialize(x.Value));
+            return Void.Value;
+        });
 }
 stopwatch.Stop();
-foreach (var block in blockChain.Blocks)
-{
-    Console.WriteLine(JsonSerializer.Serialize(block));
-}
 Console.WriteLine(stopwatch.Elapsed);
 Console.ReadLine();
 
