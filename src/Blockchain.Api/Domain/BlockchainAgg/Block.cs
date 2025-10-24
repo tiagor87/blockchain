@@ -49,16 +49,20 @@ public class Block
     public static Block Create(Block? previous)
     {
         long index = (previous?.Index ?? 0) + 1;
-        long timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        
+
+        long timestamp;
         long nonce = 0;
         bool isValid;
         string? hash;
         do
         {
-            nonce++;
-            hash = CalculateHash(index, timestamp, nonce, previous);
-            isValid = hash.StartsWith("0000");
+            timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            do
+            {
+                nonce++;
+                hash = CalculateHash(index, timestamp, nonce, previous);
+                isValid = hash.StartsWith("0000");
+            } while (!isValid && timestamp == DateTimeOffset.UtcNow.ToUnixTimeSeconds());
         } while (!isValid);
         
         return new Block(previous, index, timestamp, hash, nonce);
@@ -77,7 +81,7 @@ public class Block
 
     class BlockView(Block block) : IBlockView
     {
-        public DateTimeOffset Timestamp => DateTimeOffset.FromUnixTimeMilliseconds(block.Timestamp);
+        public DateTimeOffset Timestamp => DateTimeOffset.FromUnixTimeSeconds(block.Timestamp);
         public string Hash => block.Hash;
         public long Nonce => block.Nonce;
         public string? PreviousHash => block.Previous?.Hash;
