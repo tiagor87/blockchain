@@ -50,7 +50,7 @@ public class Blockchain : IEnumerable<Block>
         return new
         {
             isValid = IsValid(),
-            length = this.Last.Index,
+            length = this.Count(),
             chain = this.Select(block => block.ToView())
         };
     }

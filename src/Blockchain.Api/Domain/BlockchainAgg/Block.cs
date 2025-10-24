@@ -14,9 +14,8 @@ public interface IBlockView
 public class Block
 {
 
-    private Block(Block? previous, long index, long timestamp, string hash, int nonce)
+    private Block(Block? previous, long timestamp, string hash, int nonce)
     {
-        Index = index;
         Timestamp = timestamp;
         Hash = hash;
         Previous = previous;
@@ -31,14 +30,13 @@ public class Block
     #endregion
     
     #region Body
-    public long Index { get; }
     public long Timestamp { get; }
     public Block? Previous { get; }
     #endregion
     
     public string CalculateHash()
     {
-        return CalculateHash(Index, Timestamp, Nonce, Previous);
+        return CalculateHash(Timestamp, Nonce, Previous);
     }
     
     public IBlockView ToView()
@@ -48,8 +46,6 @@ public class Block
     
     public static Block Create(Block? previous)
     {
-        long index = (previous?.Index ?? 0) + 1;
-
         long timestamp;
         int nonce = 0;
         bool isValid;
@@ -60,17 +56,17 @@ public class Block
             do
             {
                 nonce++;
-                hash = CalculateHash(index, timestamp, nonce, previous);
+                hash = CalculateHash(timestamp, nonce, previous);
                 isValid = hash.StartsWith("0000");
             } while (!isValid && timestamp == DateTimeOffset.UtcNow.ToUnixTimeSeconds());
         } while (!isValid);
         
-        return new Block(previous, index, timestamp, hash, nonce);
+        return new Block(previous, timestamp, hash, nonce);
     }
     
-    private static string CalculateHash(long index, long timestamp, long nonce, Block? previous)
+    private static string CalculateHash(long timestamp, long nonce, Block? previous)
     {
-        var hashBytes = SHA256.HashData(GetBytes(index.ToString(), timestamp.ToString(), nonce.ToString(), previous?.Hash ?? string.Empty));
+        var hashBytes = SHA256.HashData(GetBytes(timestamp.ToString(), nonce.ToString(), previous?.Hash ?? string.Empty));
         return Convert.ToHexString(hashBytes);
     }
 
