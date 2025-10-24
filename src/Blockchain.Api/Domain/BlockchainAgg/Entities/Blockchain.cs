@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace Blockchain.Api.Domain.BlockchainAgg;
+namespace Blockchain.Api.Domain.BlockchainAgg.Entities;
 
 public class Blockchain : IEnumerable<Block>
 {   
@@ -17,39 +17,11 @@ public class Blockchain : IEnumerable<Block>
         Last = block;
         return block;
     }
-
-    public bool IsValid()
-    {
-        using var iterator = GetEnumerator();
-        while (iterator.MoveNext())
-        {
-            var current = iterator.Current;
-            if (current.Previous is null)
-            {
-                continue;
-            }
-
-            var previous = current.Previous;
-            if (previous.Hash != current.Previous.CalculateHash())
-            {
-                return false;
-            }
-
-            var currentHash = current.CalculateHash();
-            if (!currentHash.StartsWith("0000"))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
     
     public object ToView()
     {
         return new
         {
-            isValid = IsValid(),
             length = this.Count(),
             chain = this.Select(block => block.ToView())
         };

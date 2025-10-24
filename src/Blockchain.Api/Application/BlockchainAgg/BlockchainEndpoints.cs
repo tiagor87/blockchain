@@ -8,7 +8,7 @@ public class BlockchainEndpoints : IServiceModuleSetup, IApplicationModuleSetup
 {
     public void Setup(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSingleton(new Domain.BlockchainAgg.Blockchain());
+        services.AddSingleton(new Domain.BlockchainAgg.Entities.Blockchain());
     }
     
     public void Setup(IApplicationBuilder appBuilder)
@@ -20,22 +20,16 @@ public class BlockchainEndpoints : IServiceModuleSetup, IApplicationModuleSetup
 
         endpoints.MapPost("/", Add);
         endpoints.MapGet("/", Get);
-        endpoints.MapPost("/validate", Validate);
     }
 
-    private static IResult Add([FromServices] Domain.BlockchainAgg.Blockchain blockchain)
+    private static IResult Add([FromServices] Domain.BlockchainAgg.Entities.Blockchain blockchain)
     {
         var block = blockchain.Create();
         return Results.Created($"/{block.Hash}", block.ToView());
     }
     
-    private static IResult Get([FromServices] Domain.BlockchainAgg.Blockchain blockchain)
+    private static IResult Get([FromServices] Domain.BlockchainAgg.Entities.Blockchain blockchain)
     {
         return Results.Ok(blockchain.ToView());
-    }
-    
-    private static IResult Validate([FromServices] Domain.BlockchainAgg.Blockchain blockchain)
-    {
-        return Results.Ok(blockchain.IsValid());
     }
 }

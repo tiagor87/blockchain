@@ -1,7 +1,9 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace Blockchain.Api.Domain.BlockchainAgg;
+using Blockchain.Api.Domain.BlockchainAgg.ValueObjects;
+
+namespace Blockchain.Api.Domain.BlockchainAgg.Entities;
 
 public interface IBlockView
 {
@@ -14,7 +16,7 @@ public interface IBlockView
 public class Block
 {
 
-    private Block(Block? previous, long timestamp, string hash, int nonce)
+    private Block(Block? previous, long timestamp, Hash hash, int nonce)
     {
         Timestamp = timestamp;
         Hash = hash;
@@ -25,7 +27,7 @@ public class Block
     public static Block Genesis { get; } = Block.Create(null);
     
     #region Header
-    public string Hash { get; }
+    public Hash Hash { get; }
     public int Nonce { get; }
     #endregion
     
@@ -33,11 +35,6 @@ public class Block
     public long Timestamp { get; }
     public Block? Previous { get; }
     #endregion
-    
-    public string CalculateHash()
-    {
-        return CalculateHash(Timestamp, Nonce, Previous);
-    }
     
     public IBlockView ToView()
     {
@@ -49,25 +46,19 @@ public class Block
         long timestamp;
         int nonce = 0;
         bool isValid;
-        string? hash;
+        Hash? hash;
         do
         {
             timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             do
             {
                 nonce++;
-                hash = CalculateHash(timestamp, nonce, previous);
-                isValid = hash.StartsWith("0000");
+                hash = ValueObjects.Hash.FromValues(timestamp.ToString(), nonce.ToString(), previous?.Hash.Value ?? string.Empty);
+                isValid = hash.IsValid();
             } while (!isValid && timestamp == DateTimeOffset.UtcNow.ToUnixTimeSeconds());
         } while (!isValid);
         
         return new Block(previous, timestamp, hash, nonce);
-    }
-    
-    private static string CalculateHash(long timestamp, long nonce, Block? previous)
-    {
-        var hashBytes = SHA256.HashData(GetBytes(timestamp.ToString(), nonce.ToString(), previous?.Hash ?? string.Empty));
-        return Convert.ToHexString(hashBytes);
     }
 
     private static ReadOnlySpan<byte> GetBytes(params string[] values)
@@ -78,8 +69,8 @@ public class Block
     class BlockView(Block block) : IBlockView
     {
         public DateTimeOffset Timestamp => DateTimeOffset.FromUnixTimeSeconds(block.Timestamp);
-        public string Hash => block.Hash;
+        public string Hash => block.Hash.ToString();
         public long Nonce => block.Nonce;
-        public string? PreviousHash => block.Previous?.Hash;
+        public string? PreviousHash => block.Previous?.Hash.ToString();
     }
 }
