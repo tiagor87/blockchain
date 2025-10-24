@@ -14,7 +14,7 @@ public interface IBlockView
 public class Block
 {
 
-    private Block(Block? previous, long index, long timestamp, string hash, long nonce)
+    private Block(Block? previous, long index, long timestamp, string hash, int nonce)
     {
         Index = index;
         Timestamp = timestamp;
@@ -27,7 +27,7 @@ public class Block
     
     #region Header
     public string Hash { get; }
-    public long Nonce { get; }
+    public int Nonce { get; }
     #endregion
     
     #region Body
@@ -51,7 +51,7 @@ public class Block
         long index = (previous?.Index ?? 0) + 1;
 
         long timestamp;
-        long nonce = 0;
+        int nonce = 0;
         bool isValid;
         string? hash;
         do
