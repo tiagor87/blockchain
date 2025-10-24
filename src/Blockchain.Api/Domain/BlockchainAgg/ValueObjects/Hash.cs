@@ -12,7 +12,7 @@ public record Hash
     
     public string Value { get; }
 
-    public bool IsValid(int difficult = 4)
+    public bool IsValid(int difficult)
     {
         var padding = string.Empty.PadRight(difficult, '0');
         return Value.StartsWith(padding);

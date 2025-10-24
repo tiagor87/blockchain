@@ -8,7 +8,8 @@ public class BlockchainEndpoints : IServiceModuleSetup, IApplicationModuleSetup
 {
     public void Setup(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSingleton(new Domain.BlockchainAgg.Entities.Blockchain());
+        const int difficult = 4;
+        services.AddSingleton(new Domain.BlockchainAgg.Entities.Blockchain(difficult));
     }
     
     public void Setup(IApplicationBuilder appBuilder)

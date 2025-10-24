@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography;
-using System.Text;
+﻿using System.Text;
 
 using Blockchain.Api.Domain.BlockchainAgg.ValueObjects;
 
@@ -7,70 +6,69 @@ namespace Blockchain.Api.Domain.BlockchainAgg.Entities;
 
 public interface IBlockView
 {
-    DateTimeOffset Timestamp { get; }
+    string Timestamp { get; }
     string Hash { get; }
-    long Nonce { get; }
+    string Nonce { get; }
     string? PreviousHash { get; }
 }
 
 public class Block
 {
 
-    private Block(Block? previous, long timestamp, Hash hash, int nonce)
+    private Block(Block? previous, Timestamp timestamp, Hash hash, Nonce nonce)
     {
         Timestamp = timestamp;
         Hash = hash;
         Previous = previous;
         Nonce = nonce;
     }
-
-    public static Block Genesis { get; } = Block.Create(null);
     
     #region Header
     public Hash Hash { get; }
-    public int Nonce { get; }
+    public Nonce Nonce { get; }
     #endregion
     
     #region Body
-    public long Timestamp { get; }
+    public Timestamp Timestamp { get; }
     public Block? Previous { get; }
     #endregion
+
+    public bool IsGenesis() => Previous is null;
     
     public IBlockView ToView()
     {
         return new BlockView(this);
     }
     
-    public static Block Create(Block? previous)
+    public static Block Create(Block? previous, int difficult)
     {
-        long timestamp;
-        int nonce = 0;
+        Timestamp timestamp;
         bool isValid;
         Hash? hash;
+        Nonce nonce = Nonce.Create();
         do
         {
-            timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            nonce = nonce.Reset();
+            timestamp = ValueObjects.Timestamp.Now();
             do
             {
-                nonce++;
-                hash = ValueObjects.Hash.FromValues(timestamp.ToString(), nonce.ToString(), previous?.Hash.Value ?? string.Empty);
-                isValid = hash.IsValid();
-            } while (!isValid && timestamp == DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+                nonce = nonce.Next();
+                hash = ValueObjects.Hash.FromValues(
+                    timestamp.Value.ToString(),
+                    nonce.ToString(),
+                    previous?.Hash.Value ?? string.Empty);
+                isValid = hash.IsValid(difficult);
+            } while (!isValid && timestamp.IsValid());
         } while (!isValid);
         
         return new Block(previous, timestamp, hash, nonce);
     }
 
-    private static ReadOnlySpan<byte> GetBytes(params string[] values)
+    private class BlockView(Block block) : IBlockView
     {
-        return Encoding.UTF8.GetBytes(string.Join(':', values));
-    }
-
-    class BlockView(Block block) : IBlockView
-    {
-        public DateTimeOffset Timestamp => DateTimeOffset.FromUnixTimeSeconds(block.Timestamp);
+        public string Timestamp => block.Timestamp.ToString();
         public string Hash => block.Hash.ToString();
-        public long Nonce => block.Nonce;
+        public string Nonce => block.Nonce.ToString();
         public string? PreviousHash => block.Previous?.Hash.ToString();
     }
 }

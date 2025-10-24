@@ -3,17 +3,25 @@
 namespace Blockchain.Api.Domain.BlockchainAgg.Entities;
 
 public class Blockchain : IEnumerable<Block>
-{   
+{
+    private readonly int _difficult;
+    
+    public Blockchain(int difficult)
+    {
+        _difficult = difficult;
+        Last = Block.Create(null, _difficult);
+    }
+    
     public IEnumerator<Block> GetEnumerator()
     {
         return new BlockchainIterator(Last);
     }
 
-    public Block Last { get; private set; } = Block.Genesis;
+    public Block Last { get; private set; }
     
     public Block Create()
     {
-        var block = Block.Create(Last);
+        var block = Block.Create(Last, _difficult);
         Last = block;
         return block;
     }
@@ -50,7 +58,7 @@ public class Blockchain : IEnumerable<Block>
                 return true;
             }
         
-            if (_current == Block.Genesis)
+            if (_current.IsGenesis())
             {
                 return false;
             }
