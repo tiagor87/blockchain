@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
+    <PackageReference Include="TheNoobs.AggregateRoot" Version="1.4.1" />
     <PackageReference Include="TheNoobs.DependencyInjection.Extensions.Modules" Version="3.0.0" />
   </ItemGroup>
 

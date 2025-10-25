@@ -9,7 +9,7 @@ public class BlockchainEndpoints : IServiceModuleSetup, IApplicationModuleSetup
     public void Setup(IServiceCollection services, IConfiguration configuration)
     {
         const int difficult = 4;
-        services.AddSingleton(new Domain.BlockchainAgg.Entities.Blockchain(difficult));
+        services.AddSingleton(new Domain.BlockchainAgg.ValueObjects.Blockchain(difficult));
     }
     
     public void Setup(IApplicationBuilder appBuilder)
@@ -23,13 +23,13 @@ public class BlockchainEndpoints : IServiceModuleSetup, IApplicationModuleSetup
         endpoints.MapGet("/", Get);
     }
 
-    private static IResult Add([FromServices] Domain.BlockchainAgg.Entities.Blockchain blockchain)
+    private static IResult Add([FromServices] Domain.BlockchainAgg.ValueObjects.Blockchain blockchain)
     {
         var block = blockchain.Create();
         return Results.Created($"/{block.Hash}", block.ToView());
     }
     
-    private static IResult Get([FromServices] Domain.BlockchainAgg.Entities.Blockchain blockchain)
+    private static IResult Get([FromServices] Domain.BlockchainAgg.ValueObjects.Blockchain blockchain)
     {
         return Results.Ok(blockchain.ToView());
     }

@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 
-namespace Blockchain.Api.Domain.BlockchainAgg.Entities;
+using Blockchain.Api.Domain.BlockchainAgg.Entities;
+
+namespace Blockchain.Api.Domain.BlockchainAgg.ValueObjects;
 
 public class Blockchain : IEnumerable<Block>
 {

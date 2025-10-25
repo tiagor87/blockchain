@@ -2,6 +2,8 @@
 
 using Blockchain.Api.Domain.BlockchainAgg.ValueObjects;
 
+using TheNoobs.AggregateRoot;
+
 namespace Blockchain.Api.Domain.BlockchainAgg.Entities;
 
 public interface IBlockView
@@ -12,8 +14,15 @@ public interface IBlockView
     string? PreviousHash { get; }
 }
 
-public class Block
+public class Block : AggregateRoot<string>
 {
+    private Block() : base(Guid.CreateVersion7().ToString())
+    {
+        Timestamp = null!;
+        Hash = null!;
+        Previous = null!;
+        Nonce = null!;
+    }
 
     private Block(Block? previous, Timestamp timestamp, Hash hash, Nonce nonce)
     {
