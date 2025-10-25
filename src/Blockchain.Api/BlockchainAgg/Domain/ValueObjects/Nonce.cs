@@ -1,4 +1,6 @@
-﻿namespace Blockchain.Api.BlockchainAgg.Domain.ValueObjects;
+﻿using TheNoobs.Results;
+
+namespace Blockchain.Api.BlockchainAgg.Domain.ValueObjects;
 
 public record Nonce
 {
@@ -23,7 +25,7 @@ public record Nonce
         return Value.ToString();
     }
     
-    public static Nonce Create()
+    public static Result<Nonce> Create()
     {
         return new Nonce(0);
     }

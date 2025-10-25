@@ -1,6 +1,8 @@
 ﻿using Blockchain.Api.BlockchainAgg.Domain.ValueObjects;
 
 using TheNoobs.AggregateRoot;
+using TheNoobs.Results;
+using TheNoobs.Results.Types;
 
 namespace Blockchain.Api.BlockchainAgg.Domain.Entities;
 
@@ -47,28 +49,40 @@ public class Block : AggregateRoot<string>
         return new BlockView(this);
     }
     
-    public static Block Create(Block? previous, int difficult)
+    public static Result<Block> Create(Block? previous, int difficult)
     {
-        Timestamp timestamp;
-        bool isValid;
-        Hash? hash;
-        Nonce nonce = Nonce.Create();
-        do
+        if (difficult is <= 0 or > 10)
         {
-            nonce = nonce.Reset();
-            timestamp = ValueObjects.Timestamp.Now();
+            return new ValidationFail("Difficult should be greater than zero and below or equal to 10.");
+        }
+
+        try
+        {
+            Timestamp timestamp;
+            bool isValid;
+            Hash? hash;
+            Nonce nonce = Nonce.Create();
             do
             {
-                nonce = nonce.Next();
-                hash = ValueObjects.Hash.FromValues(
-                    timestamp.Value.ToString(),
-                    nonce.ToString(),
-                    previous?.Hash.Value ?? string.Empty);
-                isValid = hash.IsValid(difficult);
-            } while (!isValid && timestamp.IsValid());
-        } while (!isValid);
-        
-        return new Block(previous, timestamp, hash, nonce);
+                nonce = nonce.Reset();
+                timestamp = ValueObjects.Timestamp.Now();
+                do
+                {
+                    nonce = nonce.Next();
+                    hash = ValueObjects.Hash.FromValues(
+                        timestamp.Value.ToString(),
+                        nonce.ToString(),
+                        previous?.Hash.Value ?? string.Empty);
+                    isValid = hash.IsValid(difficult);
+                } while (!isValid && timestamp.IsValid());
+            } while (!isValid);
+
+            return new Block(previous, timestamp, hash, nonce);
+        }
+        catch (Exception e)
+        {
+            return new ServerErrorFail("Unexpected error while mining a block.", exception: e);
+        }
     }
 
     private class BlockView(Block block) : IBlockView

@@ -1,6 +1,9 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
+using TheNoobs.Results;
+using TheNoobs.Results.Types;
+
 namespace Blockchain.Api.BlockchainAgg.Domain.ValueObjects;
 
 public record Hash
@@ -23,11 +26,18 @@ public record Hash
         return Value[^8..];
     }
 
-    public static Hash FromValues(params string[] values)
+    public static Result<Hash> FromValues(params string[] values)
     {
-        var body = string.Join(':', values);
-        var bodyBytes = Encoding.UTF8.GetBytes(body);
-        var hashBytes = SHA256.HashData(bodyBytes);
-        return new Hash(Convert.ToHexString(hashBytes));
+        try
+        {
+            var body = string.Join(':', values);
+            var bodyBytes = Encoding.UTF8.GetBytes(body);
+            var hashBytes = SHA256.HashData(bodyBytes);
+            return new Hash(Convert.ToHexString(hashBytes));
+        }
+        catch (Exception e)
+        {
+            return new ServerErrorFail("Unexpected error while creating a hash.", exception: e);
+        }
     }
 }

@@ -2,6 +2,8 @@
 
 using Blockchain.Api.BlockchainAgg.Domain.Entities;
 
+using TheNoobs.Results;
+
 namespace Blockchain.Api.BlockchainAgg.Domain.ValueObjects;
 
 public class Blockchain : IEnumerable<Block>
@@ -21,9 +23,15 @@ public class Blockchain : IEnumerable<Block>
 
     public Block Last { get; private set; }
     
-    public Block Create()
+    public Result<Block> Create()
     {
         var block = Block.Create(Last, _difficult);
+
+        if (!block.IsSuccess)
+        {
+            return block.Fail;
+        }
+        
         Last = block;
         return block;
     }

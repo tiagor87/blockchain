@@ -1,36 +1,45 @@
-﻿namespace Blockchain.Api.BlockchainAgg.Application;
+﻿using System.Net;
+
+using Blockchain.Api.BlockchainAgg.Domain.Abstractions;
+using Blockchain.Api.Shared.Application.Abstractions;
+
+using TheNoobs.Results.Extensions;
+
+namespace Blockchain.Api.BlockchainAgg.Application;
 
 using Microsoft.AspNetCore.Mvc;
 
-using TheNoobs.DependencyInjection.Extensions.Modules.Abstractions;
-
-public class BlockchainEndpoints : IServiceModuleSetup, IApplicationModuleSetup
+public class BlockchainEndpoints : EndpointsBase
 {
-    public void Setup(IServiceCollection services, IConfiguration configuration)
+    public override void Setup(IServiceCollection services, IConfiguration configuration)
     {
-        const int difficult = 4;
+        int difficult = configuration.GetValue<int>("Blockchain:Difficult");
         services.AddSingleton(new Domain.ValueObjects.Blockchain(difficult));
     }
-    
-    public void Setup(IApplicationBuilder appBuilder)
-    {
-        if (appBuilder is not IEndpointRouteBuilder endpoints)
-        {
-            throw new InvalidCastException();
-        }
 
-        endpoints.MapPost("/", Add);
-        endpoints.MapGet("/", Get);
+    protected override void ConfigureEndpoints(IEndpointRouteBuilder builder)
+    {
+        builder.MapPost("/", AddAsync);
+        builder.MapGet("/", GetAsync);
     }
 
-    private static IResult Add([FromServices] Domain.ValueObjects.Blockchain blockchain)
+    private static ValueTask<IResult> AddAsync(
+        [FromServices] IMineBlock.IHandler handler,
+        CancellationToken cancellationToken)
     {
-        var block = blockchain.Create();
-        return Results.Created($"/{block.Hash}", block.ToView());
+        return handler.HandleAsync(cancellationToken)
+            .MatchAsync(
+                x => Success(x, HttpStatusCode.Created),
+                Fail);
     }
     
-    private static IResult Get([FromServices] Domain.ValueObjects.Blockchain blockchain)
+    private static ValueTask<IResult> GetAsync(
+        [FromServices] IListBlocks.IHandler handler,
+        CancellationToken cancellationToken)
     {
-        return Results.Ok(blockchain.ToView());
+        return handler.HandleAsync(cancellationToken)
+            .MatchAsync(
+                x => Success(x, HttpStatusCode.OK),
+                Fail);
     }
 }
