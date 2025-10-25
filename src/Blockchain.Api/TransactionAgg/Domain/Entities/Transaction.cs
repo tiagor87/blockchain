@@ -1,9 +1,9 @@
-﻿using Blockchain.Api.Domain.TransactionAgg.ValueObjects;
-using Blockchain.Api.Domain.WalletAgg.ValueObjects;
+﻿using Blockchain.Api.TransactionAgg.Domain.ValueObjects;
+using Blockchain.Api.WalletAgg.ValueObjects;
 
 using TheNoobs.AggregateRoot;
 
-namespace Blockchain.Api.Domain.TransactionAgg.Entities;
+namespace Blockchain.Api.TransactionAgg.Domain.Entities;
 
 public interface ITransactionView
 {

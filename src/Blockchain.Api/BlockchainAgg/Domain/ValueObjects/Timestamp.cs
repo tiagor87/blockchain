@@ -1,4 +1,4 @@
-﻿namespace Blockchain.Api.Domain.BlockchainAgg.ValueObjects;
+﻿namespace Blockchain.Api.BlockchainAgg.Domain.ValueObjects;
 
 public record Timestamp
 {

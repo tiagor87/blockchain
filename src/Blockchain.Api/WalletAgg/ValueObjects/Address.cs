@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace Blockchain.Api.Domain.WalletAgg.ValueObjects;
+namespace Blockchain.Api.WalletAgg.ValueObjects;
 
 public record Address(string Value)
 {

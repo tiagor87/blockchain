@@ -1,10 +1,8 @@
-﻿using System.Text;
-
-using Blockchain.Api.Domain.BlockchainAgg.ValueObjects;
+﻿using Blockchain.Api.BlockchainAgg.Domain.ValueObjects;
 
 using TheNoobs.AggregateRoot;
 
-namespace Blockchain.Api.Domain.BlockchainAgg.Entities;
+namespace Blockchain.Api.BlockchainAgg.Domain.Entities;
 
 public interface IBlockView
 {

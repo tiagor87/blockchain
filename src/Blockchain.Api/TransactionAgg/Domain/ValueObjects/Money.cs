@@ -1,4 +1,4 @@
-﻿namespace Blockchain.Api.Domain.TransactionAgg.ValueObjects;
+﻿namespace Blockchain.Api.TransactionAgg.Domain.ValueObjects;
 
 public record Money
 {

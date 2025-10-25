@@ -1,9 +1,9 @@
-namespace Blockchain.Api.Domain.WalletAgg.ValueObjects;
-
 using Org.BouncyCastle.Asn1.Sec;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Security;
+
+namespace Blockchain.Api.WalletAgg.ValueObjects;
 
 public record PrivateKey(string Value)
 {

@@ -1,8 +1,8 @@
-﻿using Blockchain.Api.Domain.WalletAgg.ValueObjects;
+﻿using Blockchain.Api.WalletAgg.ValueObjects;
 
 using TheNoobs.AggregateRoot;
 
-namespace Blockchain.Api.Domain.WalletAgg.Entities;
+namespace Blockchain.Api.WalletAgg.Domain.Entities;
 
 public class Wallet : AggregateRoot<string>
 {
